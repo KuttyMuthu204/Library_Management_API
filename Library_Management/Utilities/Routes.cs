@@ -2,14 +2,19 @@
 {
     public static class Routes
     {
+        // Collection route for books
         public const string GetBooks = "books";
 
-        public const string GetBookById = "books/{id}";
+        // Route to get a single book by id
+        public const string GetBookById = "book/{id}";
 
-        public const string AddBooks = "books";
-        
-        public const string UpdateBooks = "books/{id}";
+        // Route to add a book
+        public const string AddBook = "book";
 
-        public const string DeleteBooks = "books/{id}";
+        // Route to update a book
+        public const string UpdateBooks = "book/{id}";
+
+        // Route to delete a book
+        public const string DeleteBooks = "book/{id}";
     }
 }

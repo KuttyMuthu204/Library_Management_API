@@ -3,102 +3,143 @@ using Library_Management.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Library_Management.Utilities;
+using System.Data;
 
 namespace Library_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    /// <summary>
+    /// API controller that provides CRUD operations for books.
+    /// </summary>
     public class LibraryController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
+        /// <summary>
+        /// Creates a new controller with the provided database context.
+        /// </summary>
         public LibraryController(ApplicationDbContext context)
         {
             _context = context;
         }
 
+        /// <summary>
+        /// Gets all books.
+        /// </summary>
         [HttpGet]
         [Route(Routes.GetBooks)]
-        public async Task<ActionResult<IEnumerable<Books>>> GetBookes()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks(CancellationToken cancellationToken)
         {
-            var books = await _context.Bookes.ToListAsync();
+            var books = await _context.Books.ToListAsync(cancellationToken);
             return Ok(books);
         }
 
+        /// <summary>
+        /// Gets a single book by id.
+        /// </summary>
         [HttpGet]
         [Route(Routes.GetBookById)]
-        public async Task<ActionResult<Books>> GetBooks([FromRoute] int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<Book>> GetBook([FromRoute] int id, CancellationToken cancellationToken)
         {
-            var book = await _context.Bookes.FindAsync(id);
+            var book = await _context.Books.FindAsync(id, cancellationToken);
 
             if (book is null)
             {
-                return NotFound();
+                return Problem(detail: $"Book with ID {id} not found.", statusCode: 404);
             }
 
-            return book;
+            return Ok(book);
         }
 
+        /// <summary>
+        /// Updates an existing book.
+        /// </summary>
         [HttpPut]
         [Route(Routes.UpdateBooks)]
-        public async Task<IActionResult> UpdateBooks([FromRoute] int id, [FromBody] Books books)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateBook([FromRoute] int id, [FromBody] Book books, CancellationToken cancellationToken)
         {
             if (id != books.BookId)
-            {
-                return BadRequest();
-            }
+                return BadRequest($"The Route parameter Id is not matching with Entity Id");
 
-            _context.Entry(books).State = EntityState.Modified;
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var existingBook = await _context.Books.FindAsync(new object[] { id }, cancellationToken);
+
+            if (existingBook is null)
+                return NotFound($"Book with ID {id} not found.");
+
+            existingBook.BookId = books.BookId;
+            existingBook.Title = books.Title;
+            existingBook.Author = books.Author;
+            existingBook.TotalCopies = books.TotalCopies;
+            existingBook.AvailableCopies = books.AvailableCopies;
+            existingBook.PublishedDate = books.PublishedDate;
+            existingBook.Genre = books.Genre;
+            existingBook.Language = books.Language;
 
             try
             {
-                await _context.SaveChangesAsync();
+                _context.Books.Update(existingBook);
+                await _context.SaveChangesAsync(cancellationToken);
+                return NoContent();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DBConcurrencyException)
             {
-                if (!BooksExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                if (!await BookExistsAsync(id, cancellationToken)) return NotFound();
+                throw;
             }
-
-            return NoContent();
         }
 
+        /// <summary>
+        /// Adds a new book.
+        /// </summary>
         [HttpPost]
-        [Route(Routes.AddBooks)]
-        public async Task<ActionResult<Books>> AddBooks(List<Books> books)
+        [Route(Routes.AddBook)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<Book>> AddBook([FromBody] Book book, CancellationToken cancellationToken)
         {
-            _context.Bookes.AddRange(books);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetBooks", new { id = books.FirstOrDefault()?.BookId }, books);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await _context.Books.AddAsync(book, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+            return StatusCode(201, book);
         }
 
 
+        /// <summary>
+        /// Deletes a book by id.
+        /// </summary>
         [HttpDelete]
         [Route(Routes.DeleteBooks)]
-        public async Task<IActionResult> DeleteBooks(int id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteBook([FromRoute] int id, CancellationToken cancellationToken)
         {
-            var books = await _context.Bookes.FindAsync(id);
+            var book = await _context.Books.FindAsync(id, cancellationToken);
 
-            if (books is null)
-            {
-                return NotFound();
-            }
+            if (book is null)
+                return NotFound($"Book with ID {id} not found.");
 
-            _context.Bookes.Remove(books);
-            await _context.SaveChangesAsync();
-
+            _context.Books.Remove(book);
+            await _context.SaveChangesAsync(cancellationToken);
             return NoContent();
         }
 
-        private bool BooksExists(int id)
+        /// <summary>
+        /// Check exiatance of a book by id.
+        /// </summary>
+        private async Task<bool> BookExistsAsync(int id, CancellationToken cancellationToken)
         {
-            return _context.Bookes.Any(e => e.BookId == id);
+            return await _context.Books.AnyAsync(e => e.BookId == id, cancellationToken);
         }
     }
 }
