@@ -48,7 +48,7 @@ namespace Library_Management.Controllers
 
             if (book is null)
             {
-                return Problem(detail: $"Book with ID {id} not found.", statusCode: 404);
+                return NotFound($"Book with ID {id} not found.");
             }
 
             return Ok(book);

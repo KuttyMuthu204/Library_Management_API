@@ -1,8 +1,7 @@
 ﻿use Library;
 
-
 -- Insert sample data into the Bookes table
-INSERT INTO [dbo].[Bookes] 
+INSERT INTO [dbo].[Books] 
     ([Title], [Author], [TotalCopies], [AvailableCopies], [PublishedDate], [Genre], [Language])
 VALUES
     ('The Great Gatsby', 'F. Scott Fitzgerald', 5, 3, '1925-04-10', 'Fiction', 'English'),
@@ -27,7 +26,7 @@ VALUES
     ('The Picture of Dorian Gray', 'Oscar Wilde', 4, 4, '1890-07-01', 'Gothic', 'English');   
 
 -- Get all books in the library
-SELECT * FROM [dbo].[Bookes];
+SELECT * FROM [dbo].[Books];
 
 -- truncate the table data
-TRUNCATE TABLE [dbo].[Bookes];
+TRUNCATE TABLE [dbo].[Books];
