@@ -32,8 +32,6 @@ namespace Library_Management.Models
         [StringLength(15, ErrorMessage = "{0} must be between {1} and {2}", MinimumLength = 5)]
         public string Genre { get; set; } = string.Empty;
 
-        public string ISBN { get; set; } = string.Empty;
-
         [Required(ErrorMessage = "Language of the book is required.")]
         [StringLength(15, ErrorMessage = "{0} must be between {1} and {2}", MinimumLength = 5)]
         public string Language { get; set; } = string.Empty;
