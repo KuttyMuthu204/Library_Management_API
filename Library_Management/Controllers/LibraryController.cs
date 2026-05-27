@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Library_Management.Utilities;
 using System.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Library_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     /// <summary>
     /// API controller that provides CRUD operations for books.
     /// </summary>
@@ -64,9 +66,6 @@ namespace Library_Management.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateBook([FromRoute] int id, [FromBody] Book books, CancellationToken cancellationToken)
         {
-            if (id != books.BookId)
-                return BadRequest($"The Route parameter Id is not matching with Entity Id");
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -75,7 +74,6 @@ namespace Library_Management.Controllers
             if (existingBook is null)
                 return NotFound($"Book with ID {id} not found.");
 
-            existingBook.BookId = books.BookId;
             existingBook.Title = books.Title;
             existingBook.Author = books.Author;
             existingBook.TotalCopies = books.TotalCopies;

@@ -1,5 +1,6 @@
 ﻿using Library_Management.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Library_Management.Models
 {
@@ -12,6 +13,7 @@ namespace Library_Management.Models
         /// Primary key for the book.
         /// </summary>
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BookId { get; set; }
 
         /// <summary>

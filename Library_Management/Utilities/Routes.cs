@@ -16,5 +16,8 @@
 
         // Route to delete a book
         public const string DeleteBooks = "book/{id}";
+
+        // Route to login
+        public const string Login = "login";
     }
 }
