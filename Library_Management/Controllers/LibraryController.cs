@@ -10,7 +10,7 @@ namespace Library_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     /// <summary>
     /// API controller that provides CRUD operations for books.
     /// </summary>
@@ -34,8 +34,8 @@ namespace Library_Management.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks(CancellationToken cancellationToken)
         {
-            var books = await _context.Books.ToListAsync(cancellationToken);
-            return Ok(books);
+            //var books = await _context.Books.ToListAsync(cancellationToken);
+            return Ok();
         }
 
         /// <summary>
