@@ -17,5 +17,10 @@ namespace Library_Management.DBContext
         /// DbSet representing stored books.
         /// </summary>
         public DbSet<Book> Books { get; set; }
+
+        /// <summary>
+        /// DbSet representing stored users.
+        /// </summary>
+        public DbSet<Users> Users { get; set; }
     }
 }

@@ -1,3 +1,6 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Notes.txt" />
+  </Folder>
   <Project Path="Library_Management/Library_Management.csproj" />
 </Solution>

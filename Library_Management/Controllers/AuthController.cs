@@ -1,9 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Library_Management.DBContext;
 using Library_Management.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Library_Management.Controllers
@@ -13,28 +15,24 @@ namespace Library_Management.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _context;
 
-        public AuthController(IConfiguration configuration)
+        public AuthController(IConfiguration configuration, ApplicationDbContext context)
         {
             _configuration = configuration;
+            _context = context;
         }
 
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginModel loginModel)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            var configuredUsername = _configuration["UserSecrets:Username"];
-            var configuredPassword = _configuration["UserSecrets:Password"];
+            var user = _context.Users.AsNoTracking().FirstOrDefault(u => u.EmailId == loginModel.Username && u.Password == loginModel.Password);
 
-            if (!string.Equals(loginModel.Username, configuredUsername, StringComparison.Ordinal) ||
-                !string.Equals(loginModel.Password, configuredPassword, StringComparison.Ordinal))
-            {
+            if (user is null)
                 return Unauthorized(new { message = "Invalid username or password." });
-            }
 
             var token = GenerateJwtToken(loginModel.Username);
             return Ok(token.ToString());

@@ -1,4 +1,20 @@
-﻿use Library;
+﻿create database LibraryDB;
+
+use LibraryDB;
+
+-- Create table books
+create table Books 
+(
+    BookId Int IDENTITY(1,1) PRIMARY KEY,
+    Title VARCHAR(200) UNIQUE,
+    Author VARCHAR(100),
+    TotalCopies INT,
+    AvailableCopies INT,
+    PublishedDate DATE,
+    Genre VARCHAR(50),
+    Language VARCHAR(20)
+)
+go
 
 -- Insert sample data into the Bookes table
 INSERT INTO [dbo].[Books] 
@@ -28,5 +44,26 @@ VALUES
 -- Get all books in the library
 SELECT * FROM [dbo].[Books];
 
--- truncate the table data
-TRUNCATE TABLE [dbo].[Books];
+-- Create table Users
+create table Users
+(
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    EmailId VARCHAR(50) PRIMARY KEY,
+    Password VARCHAR(50) NOT NULL,
+    Country VARCHAR(50) NOT NULL
+)
+GO
+
+-- Insert data into Users table
+INSERT INTO [dbo].[Users] 
+    ([FirstName], [LastName], [EmailId], [Password], [Country])
+VALUES
+    ('Muthuraman', 'Sivalingkam', 'smuthuram47@gmail.com', '12204@Muthu', 'India');
+GO
+
+-- Query Users
+SELECT * FROM Users;
+
+-- Delete table
+DROP TABLE Users
