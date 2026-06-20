@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 
 // database connetion
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTION")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
 
 // Add authentication and authorization services
 builder.Services.AddAuthentication(options =>
