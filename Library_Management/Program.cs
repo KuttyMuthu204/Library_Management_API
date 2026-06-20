@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // database connetion
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryConnectionString")));
 
 // Add authentication and authorization services
