@@ -10,6 +10,6 @@ public class LoginModel
 
 
     [Required(ErrorMessage = "Password is required.")]
-    [StringLength(10, ErrorMessage = "{0} must be between {1} and {2}", MinimumLength = 6)]
+    [StringLength(20, ErrorMessage = "{0} must be between {1} and {2}", MinimumLength = 6)]
     public string Password { get; set; } = string.Empty;
 }

@@ -20,7 +20,7 @@ namespace Library_Management.Models
         public string EmailId { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Password is required.")]
-        [StringLength(50, ErrorMessage = "{0} must be between {1} and {2}", MinimumLength = 5)]
+        [StringLength(20, ErrorMessage = "{0} must be between {1} and {2}", MinimumLength = 6)]
         public string Password { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Country is required.")]
