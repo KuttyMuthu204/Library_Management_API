@@ -10,7 +10,7 @@ namespace Library_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     /// <summary>
     /// API controller that provides CRUD operations for books.
     /// </summary>

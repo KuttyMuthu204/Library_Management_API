@@ -20,7 +20,6 @@ namespace Library_Management.Controllers
         }
 
         [HttpPost("login")]
-        [AllowAnonymous]
         public IActionResult Login([FromBody] LoginModel loginModel)
         {
             if (!ModelState.IsValid)
