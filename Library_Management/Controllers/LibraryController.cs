@@ -34,8 +34,8 @@ namespace Library_Management.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks(CancellationToken cancellationToken)
         {
-            //var books = await _context.Books.ToListAsync(cancellationToken);
-            return Ok();
+            var books = await _context.Books.ToListAsync(cancellationToken);
+            return Ok(books);
         }
 
         /// <summary>
