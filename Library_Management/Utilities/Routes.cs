@@ -19,5 +19,8 @@
 
         // Route to login
         public const string Login = "login";
+
+        // Route to get connection string
+        public const string GetConnectionString = "connectionstring";
     }
 }

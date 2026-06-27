@@ -3,4 +3,5 @@
     <File Path="Notes.txt" />
   </Folder>
   <Project Path="Library_Management/Library_Management.csproj" />
+  <Project Path="Library_Test/Library_Test.csproj" Id="3b7dc230-208d-4ac4-9e3e-f7491b8a083f" />
 </Solution>

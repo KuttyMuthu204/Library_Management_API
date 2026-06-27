@@ -1,7 +1,9 @@
-using System.Text;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Library_Management.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +38,11 @@ builder.Services.AddAuthorization();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// configure Azure Key Vault client
+var vaultUri = builder.Configuration["KeyVault:VaultUri"] ?? throw new ArgumentNullException("Keyvault not configured.");
+var secretClient = new SecretClient(new Uri(vaultUri), new DefaultAzureCredential());
+builder.Services.AddSingleton(secretClient);
 
 //add CORS policy for our Library Managment Angular Project
 builder.Services.AddCors(options =>

@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library_Management.DBContext
 {
-    public class ApplicationDbContext: DbContext
+    public class ApplicationDbContext : DbContext
     {
         /// <summary>
         /// Create a new database context with the supplied options.
         /// </summary>
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
         }

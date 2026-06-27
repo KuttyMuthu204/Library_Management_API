@@ -1,10 +1,10 @@
-﻿using Library_Management.DBContext;
+﻿using Azure.Security.KeyVault.Secrets;
 using Library_Management.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Library_Management.Services;
 using Library_Management.Utilities;
-using System.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace Library_Management.Controllers
 {
@@ -16,14 +16,16 @@ namespace Library_Management.Controllers
     /// </summary>
     public class LibraryController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ILibraryService _libraryService;
+        private readonly SecretClient _secretClient;
 
         /// <summary>
-        /// Creates a new controller with the provided database context.
+        /// Creates a new controller with the provided params.
         /// </summary>
-        public LibraryController(ApplicationDbContext context)
+        public LibraryController(ILibraryService libraryService, SecretClient secretClient)
         {
-            _context = context;
+            _libraryService = libraryService;
+            _secretClient = secretClient;
         }
 
         /// <summary>
@@ -34,8 +36,14 @@ namespace Library_Management.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks(CancellationToken cancellationToken)
         {
-            var books = await _context.Books.AsNoTracking().ToListAsync(cancellationToken);
-            return Ok(books);
+            try
+            {
+                return Ok(await _libraryService.GetAllBooks(cancellationToken));
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("Unexpected error occurred while fetching the books");
+            }
         }
 
         /// <summary>
@@ -44,16 +52,20 @@ namespace Library_Management.Controllers
         [HttpGet]
         [Route(Routes.GetBookById)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<Book>> GetBook([FromRoute] int id, CancellationToken cancellationToken)
+        public async Task<ActionResult<Book>> GetBook([FromRoute][Required] int id, CancellationToken cancellationToken)
         {
-            var book = await _context.Books.FindAsync(id, cancellationToken);
-
-            if (book is null)
+            try
             {
-                return NotFound($"Book with ID {id} not found.");
+                return Ok(await _libraryService.GetBookById(id, cancellationToken));
             }
-
-            return Ok(book);
+            catch (Exception ex) when (ex is KeyNotFoundException)
+            {
+                return NotFound($"No book found with this Id: {id}");
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("Unexpected error occurred while updating the book");
+            }
         }
 
         /// <summary>
@@ -64,34 +76,22 @@ namespace Library_Management.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateBook([FromRoute] int id, [FromBody] Book books, CancellationToken cancellationToken)
+        public async Task<ActionResult> UpdateBook([FromRoute][Required] int id, [FromBody][Required] Book book, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var existingBook = await _context.Books.FindAsync(new object[] { id }, cancellationToken);
-
-            if (existingBook is null)
-                return NotFound($"Book with ID {id} not found.");
-
-            existingBook.Title = books.Title;
-            existingBook.Author = books.Author;
-            existingBook.TotalCopies = books.TotalCopies;
-            existingBook.AvailableCopies = books.AvailableCopies;
-            existingBook.PublishedDate = books.PublishedDate;
-            existingBook.Genre = books.Genre;
-            existingBook.Language = books.Language;
-
             try
             {
-                _context.Books.Update(existingBook);
-                await _context.SaveChangesAsync(cancellationToken);
-                return NoContent();
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                return Ok(await _libraryService.UpdateBookById(id, book, cancellationToken));
             }
-            catch (DBConcurrencyException)
+            catch (Exception ex) when (ex is KeyNotFoundException)
             {
-                if (!await BookExistsAsync(id, cancellationToken)) return NotFound();
-                throw;
+                return NotFound($"No book found with this Id: {id}");
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("Unexpected error occurred while updating the book");
             }
         }
 
@@ -102,16 +102,23 @@ namespace Library_Management.Controllers
         [Route(Routes.AddBook)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Book>> AddBook([FromBody] Book book, CancellationToken cancellationToken)
+        public async Task<ActionResult<Book>> AddBook([FromBody][Required] Book book, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            await _context.Books.AddAsync(book, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-            return StatusCode(201, book);
+                if (await _libraryService.AddBook(book, cancellationToken))
+                    return StatusCode(201, book);
+                else
+                    throw new InvalidOperationException("Failed to add the book. Please try again later.");
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("Failed to add the book. Please try again later.");
+            }
         }
-
 
         /// <summary>
         /// Deletes a book by id.
@@ -120,24 +127,39 @@ namespace Library_Management.Controllers
         [Route(Routes.DeleteBooks)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteBook([FromRoute] int id, CancellationToken cancellationToken)
+        public async Task<ActionResult> DeleteBook([FromRoute][Required] int id, CancellationToken cancellationToken)
         {
-            var book = await _context.Books.FindAsync(id, cancellationToken);
-
-            if (book is null)
-                return NotFound($"Book with ID {id} not found.");
-
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync(cancellationToken);
-            return NoContent();
+            try
+            {
+                return Ok(await _libraryService.DeleteBook(id, cancellationToken));
+            }
+            catch (Exception ex) when (ex is KeyNotFoundException)
+            {
+                return NotFound($"No book found with this Id: {id}");
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("Unexpected error occurred while deleting the book");
+            }
         }
 
         /// <summary>
-        /// Check exiatance of a book by id.
+        /// Gets DB Connection string from Azure Key Vault and returns all books.
         /// </summary>
-        private async Task<bool> BookExistsAsync(int id, CancellationToken cancellationToken)
+        [HttpGet()]
+        [Route(Routes.GetConnectionString)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetDBConnection(CancellationToken cancellationToken)
         {
-            return await _context.Books.AnyAsync(e => e.BookId == id, cancellationToken);
+            try
+            {
+                var connectionString = await _secretClient.GetSecretAsync("Connection");
+                return Ok(new { ConnectionString = connectionString });
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("Unexpected error occurred while getting the secrets.");
+            }
         }
     }
 }
