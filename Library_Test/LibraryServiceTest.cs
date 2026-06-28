@@ -79,7 +79,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task GetAllBookes_WithNullCancellationToken_ShouldThroughException()
+        public async Task GetAllBookes_WithNullCancellationToken_ShouldThrowException()
         {
             // Arrange
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -111,14 +111,14 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task AddBook_WithException_ShouldThroughArgumentNullException()
+        public async Task AddBook_WithException_ShouldThrowArgumentNullException()
         {
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentNullException>(() => _libraryService.AddBook(null!, CancellationToken.None));
         }
 
         [Fact]
-        public async Task DeleteBook_WithInvalidBook_ShouldThroughKeyNotFoundException()
+        public async Task DeleteBook_WithInvalidBook_ShouldThrowKeyNotFoundException()
         {
             // Act & Assert
             await Assert.ThrowsAsync<KeyNotFoundException>(() => _libraryService.DeleteBook(1, CancellationToken.None));
@@ -161,7 +161,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task GetBookById_WithoutData_ShouldThroughKeyNotFoundException()
+        public async Task GetBookById_WithoutData_ShouldThrowKeyNotFoundException()
         {
             // Arrange
             await SeedBooks();
@@ -195,7 +195,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task UpdateBookById_WithNoBookFound_ShouldThroughKeyNotFoundException()
+        public async Task UpdateBookById_WithNoBookFound_ShouldThrowKeyNotFoundException()
         {
             // Arrange
             await SeedBooks();
@@ -206,7 +206,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task UpdateBookById_WithNullBookFound_ShouldThroughArgumentNullException()
+        public async Task UpdateBookById_WithNullBookFound_ShouldThrowArgumentNullException()
         {
             // Arrange
             await SeedBooks();
@@ -214,6 +214,16 @@ namespace Library_Test
 
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentNullException>(() => _libraryService.UpdateBookById(book.BookId, null!, CancellationToken.None));
+        }
+
+        [Fact]
+        public void Constructor_WithNulDBContext_ShouldThrowArgumentNullException()
+        {
+            // Act & Assert
+            var ex = Assert.Throws<ArgumentNullException>(() => new LibraryService(null!));
+            Assert.NotNull(ex);
+            Assert.NotEmpty(ex.Message);
+            Assert.Contains("Value cannot be null.", ex.Message);
         }
 
         private async Task SeedBooks()
@@ -243,13 +253,5 @@ namespace Library_Test
                 Language = "Tamil"
             };
         }
-
-        //private LibraryService SetupDBException()
-        //{
-        //    var mock = new Mock<IDBExceptionService>();
-        //    mock.Setup(m => m.FindAsync(1, CancellationToken.None)).ReturnsAsync(new Book { BookId = 3, Author = "Author 3" });
-        //    mock.Setup(m => m.SaveChangesAsync(CancellationToken.None)).ThrowsAsync(new Exception("DB Error"));
-        //    return new LibraryService(mock.Object);
-        //}
     }
 }

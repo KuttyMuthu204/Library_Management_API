@@ -4,8 +4,7 @@ namespace Library_Management.Models;
 
 public class LoginModel
 {
-    [Key]
-    [EmailAddress(ErrorMessage = "Invalid email id format")]
+    [EmailAddress(ErrorMessage = "Invalid email address format.")]
     public string Username { get; set; } = string.Empty;
 
 

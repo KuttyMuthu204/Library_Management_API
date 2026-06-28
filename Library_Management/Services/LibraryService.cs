@@ -10,7 +10,7 @@ namespace Library_Management.Services
 
         public LibraryService(ApplicationDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<List<Book>> GetAllBooks(CancellationToken cancellationToken)

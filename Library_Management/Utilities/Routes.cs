@@ -22,5 +22,8 @@
 
         // Route to get connection string
         public const string GetConnectionString = "connectionstring";
+
+        // Route for user login
+        public const string UserLogin = "userlogin";
     }
 }

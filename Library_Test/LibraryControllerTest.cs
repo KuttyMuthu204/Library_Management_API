@@ -89,7 +89,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task GetBooks_WithException_ShouldThroughInvalidOperationException()
+        public async Task GetBooks_WithException_ShouldThrowInvalidOperationException()
         {
             // Arrange
             _libraryServiceMock.Setup(c => c.GetAllBooks(_cancellationToken)).ThrowsAsync(new Exception("DB Error"));
@@ -117,7 +117,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task AddBook_WithNullBook_ShouldThroughArgumentNullException()
+        public async Task AddBook_WithNullBook_ShouldThrowArgumentNullException()
         {
             // Act & Assert
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _libraryController.AddBook(null!, _cancellationToken));
@@ -125,7 +125,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task AddBook_WithInvalidModelState_ShouldThroughBadRequestException()
+        public async Task AddBook_WithInvalidModelState_ShouldThrowBadRequestException()
         {
             // Arrange
             var book = GetBooks().FirstOrDefault();
@@ -166,7 +166,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task GetBook_WithInvalidBookId_ShouldThroughNotFoundException()
+        public async Task GetBook_WithInvalidBookId_ShouldThrowNotFoundException()
         {
             // Arrange
             _libraryServiceMock.Setup(c => c.GetBookById(3, _cancellationToken)).ThrowsAsync(new KeyNotFoundException("No book found with this Id: 3"));
@@ -181,7 +181,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task GetBook_WithException_ShouldThroughException()
+        public async Task GetBook_WithException_ShouldThrowException()
         {
             // Arrange
             _libraryServiceMock.Setup(c => c.GetBookById(3, _cancellationToken)).ThrowsAsync(new Exception("DB Error"));
@@ -208,7 +208,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task DeleteBook_WithInvalidBookId_ShouldThroughNotFoundException()
+        public async Task DeleteBook_WithInvalidBookId_ShouldThrowNotFoundException()
         {
             // Arrange
             _libraryServiceMock.Setup(c => c.DeleteBook(3, _cancellationToken)).ThrowsAsync(new KeyNotFoundException("No book found with this Id: 3"));
@@ -223,7 +223,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task DeleteBook_WithException_ShouldThroughException()
+        public async Task DeleteBook_WithException_ShouldThrowException()
         {
             // Arrange
             _libraryServiceMock.Setup(c => c.DeleteBook(3, _cancellationToken)).ThrowsAsync(new Exception("DB Error"));
@@ -254,7 +254,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task UpdateBook_WithInvalidModelState_ShouldThroughBadRequestException()
+        public async Task UpdateBook_WithInvalidModelState_ShouldThrowBadRequestException()
         {
             // Arrange
             var book = GetBooks().FirstOrDefault();
@@ -272,7 +272,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task UpdateBook_WithInvalidBookId_ShouldThroughNotFoundException()
+        public async Task UpdateBook_WithInvalidBookId_ShouldThrowNotFoundException()
         {
             // Arrange
             var book = GetBooks().LastOrDefault();
@@ -288,7 +288,7 @@ namespace Library_Test
         }
 
         [Fact]
-        public async Task UpdateBook_WithException_ShouldThroughException()
+        public async Task UpdateBook_WithException_ShouldThrowException()
         {
             // Arrange
             var book = GetBooks().LastOrDefault();
