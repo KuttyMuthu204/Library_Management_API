@@ -1,0 +1,67 @@
+﻿using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Library_Management.DBContext;
+using Library_Management.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+namespace Library_Management.DI
+{
+    public static class Startup
+    {
+        public static WebApplicationBuilder BuildApplication(WebApplicationBuilder builder)
+        {
+            // Add services to the container.
+            builder.Services.AddControllers();
+
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ILibraryService, LibraryService>();
+
+            // database connetion
+            builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
+                            options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
+
+            // Add authentication and authorization services
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "JwtBearer";
+                options.DefaultChallengeScheme = "JwtBearer";
+            })
+            .AddJwtBearer("JwtBearer", options =>
+            {
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key is not configured.")))
+                };
+            });
+
+            builder.Services.AddAuthorization();
+
+            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            builder.Services.AddOpenApi();
+
+            // configure Azure Key Vault client
+            var vaultUri = builder.Configuration["KeyVault:VaultUri"] ?? throw new ArgumentNullException("Keyvault not configured.");
+            var secretClient = new SecretClient(new Uri(vaultUri), new DefaultAzureCredential());
+            builder.Services.AddSingleton(secretClient);
+
+            //add CORS policy for our Library Managment Angular Project
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("LibraryManagmentPolicy", policy =>
+                {
+                    policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+                });
+            });
+
+            return builder;
+        }
+    }
+}
