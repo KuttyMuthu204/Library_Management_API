@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Library_Management.DBContext;
+using Library_Management.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.CodeAnalysis;
@@ -10,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ILibraryService, LibraryService>();
 
 // database connetion
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>

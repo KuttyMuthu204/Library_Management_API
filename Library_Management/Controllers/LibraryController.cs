@@ -1,5 +1,4 @@
-﻿using Azure.Security.KeyVault.Secrets;
-using Library_Management.Models;
+﻿using Library_Management.Models;
 using Library_Management.Services;
 using Library_Management.Utilities;
 using Microsoft.AspNetCore.Authorization;
@@ -17,15 +16,13 @@ namespace Library_Management.Controllers
     public class LibraryController : ControllerBase
     {
         private readonly ILibraryService _libraryService;
-        private readonly SecretClient _secretClient;
 
         /// <summary>
         /// Creates a new controller with the provided params.
         /// </summary>
-        public LibraryController(ILibraryService libraryService, SecretClient secretClient)
+        public LibraryController(ILibraryService libraryService)
         {
             _libraryService = libraryService;
-            _secretClient = secretClient;
         }
 
         /// <summary>
@@ -140,25 +137,6 @@ namespace Library_Management.Controllers
             catch (Exception)
             {
                 throw new InvalidOperationException("Unexpected error occurred while deleting the book");
-            }
-        }
-
-        /// <summary>
-        /// Gets DB Connection string from Azure Key Vault and returns all books.
-        /// </summary>
-        [HttpGet()]
-        [Route(Routes.GetConnectionString)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult> GetDBConnection(CancellationToken cancellationToken)
-        {
-            try
-            {
-                var connectionString = await _secretClient.GetSecretAsync("Connection");
-                return Ok(new { ConnectionString = connectionString });
-            }
-            catch (Exception)
-            {
-                throw new InvalidOperationException("Unexpected error occurred while getting the secrets.");
             }
         }
     }

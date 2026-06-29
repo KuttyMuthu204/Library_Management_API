@@ -12,17 +12,14 @@ namespace Library_Test
     {
         private readonly Mock<ILibraryService> _libraryServiceMock;
         private readonly LibraryController _libraryController;
-        private readonly Mock<SecretClient> _secretClient;
 
         private readonly CancellationToken _cancellationToken = CancellationToken.None;
         private readonly DateTime publishedDate = DateTime.Now;
-        private const string KeyVaultUrl = "https://your-keyvault-name.vault.azure.net/";
 
         public LibraryControllerTest()
         {
             _libraryServiceMock = new Mock<ILibraryService>();
-            _secretClient = new Mock<SecretClient>(new Uri(KeyVaultUrl), new Azure.Identity.DefaultAzureCredential());
-            _libraryController = new LibraryController(_libraryServiceMock.Object, _secretClient.Object);
+            _libraryController = new LibraryController(_libraryServiceMock.Object);
         }
 
         [Fact]
