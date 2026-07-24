@@ -4,10 +4,12 @@ using Library_Management.DBContext;
 using Library_Management.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Library_Management.DI
 {
+    [ExcludeFromCodeCoverage(Justification = "Startup class used to configure settings.")]
     public static class Startup
     {
         public static WebApplicationBuilder BuildApplication(WebApplicationBuilder builder)
