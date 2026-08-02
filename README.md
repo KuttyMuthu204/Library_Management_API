@@ -1,0 +1,1 @@
+[![Build Status](https://dev.azure.com/MuthuramanOrg/Library%20Management/_apis/build/status%2FKuttyMuthu204.Library_Management_API?branchName=master)](https://dev.azure.com/MuthuramanOrg/Library%20Management/_build/latest?definitionId=1&branchName=master)
